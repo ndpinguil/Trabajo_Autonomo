@@ -1,0 +1,139 @@
+Investigar los 10 errores comunes de los princpiantes en React con los Hooks y realizar un ejemplo con cada uno. 
+
+1. Usar Hooks fuera de componentes o funciones personalizadas
+    // Incorrecto
+    useState(0); // Error: Hooks can only be called inside a React function component.
+    // Correcto
+    function MyComponent() {
+    const [count, setCount] = useState(0);
+    return <div>{count}</div>;
+    }
+
+2. No seguir las reglas de los Hooks (orden y condicionales)
+    function MyComponent() {
+    const [state, setState] = useState(0);
+    // Incorrecto
+    if (state > 0) {
+        const [anotherState, setAnotherState] = useState(1); // Error: Hooks should be at the top level
+    }
+    // Correcto
+    const [anotherState, setAnotherState] = useState(1);
+
+    return <div>{state}</div>;
+    }
+
+3. Falta de dependencias en useEffect
+    // Incorrecto
+    useEffect(() => {
+    console.log('Component mounted or state updated');
+    }); // Error: Will run on every render
+    // Correcto
+    useEffect(() => {
+    console.log('Component mounted or state updated');
+    })
+
+4. Dependencias incorrectas en useEffect
+    function MyComponent({ prop }) {
+    const [state, setState] = useState(0);
+    // Incorrecto
+    useEffect(() => {
+        console.log(prop); // Error: `prop` should be included in dependencies
+    }, [state]);
+    // Correcto
+    useEffect(() => {
+        console.log(prop);
+    }, [prop, state]);
+
+    return <div>{state}</div>;
+    }
+
+5. Actualizar estado basado en estado previo sin usar función de actualización
+    function Counter() {
+    const [count, setCount] = useState(0);
+    // Incorrecto
+    const increment = () => setCount(count + 1); // Error: Might cause race condition
+    // Correcto
+    const increment = () => setCount(prevCount => prevCount + 1);
+    return <button onClick={increment}>{count}</button>;
+    }
+
+6. Olvidar limpiar efectos
+    function MyComponent() {
+    useEffect(() => {
+        const handleResize = () => console.log(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+    // Incorrecto
+        // No cleanup
+    // Correcto
+        return () => {
+        window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+    return <div>Resize the window</div>;
+    }
+
+7. Uso incorrecto de useContext sin un proveedor adecuado
+    const MyContext = React.createContext();
+
+    function MyComponent() {
+    // Incorrecto
+    const value = useContext(MyContext); // Error: No provider
+
+    // Correcto
+    return (
+        <MyContext.Provider value={/* some value */}>
+        <AnotherComponent />
+        </MyContext.Provider>
+    );
+    }
+
+    function AnotherComponent() {
+    const value = useContext(MyContext);
+    return <div>{value}</div>;
+    }
+
+8. Confundir useEffect con useLayoutEffect
+    function MyComponent() {
+    const [width, setWidth] = useState(0);
+
+    // Incorrecto
+    useEffect(() => {
+        setWidth(window.innerWidth); // Might cause flicker
+
+    // Correcto
+    useLayoutEffect(() => {
+        setWidth(window.innerWidth);
+    }, []);
+
+    return <div>{width}</div>;
+    }
+
+9. Ignorar posibles valores de retorno de los Hooks personalizados
+    function useCustomHook() {
+    const [state, setState] = useState(0);
+    // Incorrecto
+    return; // Should return something
+
+    // Correcto
+    return [state, setState];
+    }
+
+    function MyComponent() {
+    const [state, setState] = useCustomHook();
+    return <div>{state}</div>;
+    }
+
+10. No manejar adecuadamente los estados derivados
+    function MyComponent() {
+    const [count, setCount] = useState(0);
+
+    // Incorrecto
+    const doubled = count * 2; // This recomputes on every render
+
+    // Correcto
+    const doubled = useMemo(() => count * 2, [count]);
+
+    return <div>{doubled}</div>;
+    }
+
+
